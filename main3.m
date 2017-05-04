@@ -311,7 +311,7 @@ for i = 1:length(all_nodes)
 end
 %% Plotting the metrics for the communities and  selected node
 % representativity
-id = 20; %Node
+%id = 20; %Node
 neigh_i = find(AdjExt_knn(id,:) == 1); %Neighborhood of i
 Ci = find(sum(communities(:,neigh_i),2) > 0); %Communities
 representativity = zeros(length(Ci),1);
@@ -336,30 +336,23 @@ for i = 1:length(Ci)
     IC(i) = sum(representativity_com);
 end
 % Afilliation force
-ciElements = find(AdjExt_knn(l,:) == 1); % Elements in the first community
-representativity_node = zeros(length(ciElements),1); % Representativity will be stored here
-
-for i=1:length(ciElements)
-    neigh_i = find(AdjExt_knn(ciElements(i),:) == 1); %Neighbor
-    for j = 1:length(neigh_i)
-        representativity_node(i) = representativity_node(i) + VisCommunitiesExt(Ci(1),neigh_i(j));
+neighElements = find(AdjExt_knn(id,:) == 1); % Neighbors of the node id.
+FA = zeros(length(Ci),1); % Affiliation force initialization.
+for i = 1:length(Ci)
+    ciElements = find(communities(Ci(i),:) == 1); % Elements in community i.
+    representativity_com = zeros(length(ciElements),1); % Representativity will be stored here
+    for j=1:length(ciElements)
+        for k = 1:length(neighElements)
+            representativity_com(j) = representativity_com(j) + communities(Ci(i),neighElements(k));
+        end
+        representativity_com(j) = representativity_com(i)/length(neigh_i);
     end
-    representativity_node(i) = representativity_node(i)/length(neigh_i);
+    FA(i) = sum(representativity_com);
 end
-FA = sum(representativity_node);
-%images = {'im10083.jpg','im10069.jpg','im10089.jpg','im10171.jpg','im10087.jpg','im10018.jpg','im10122.jpg','im10131.jpg','im10078.jpg','im10065.jpg','im10162.jpg','im10144.jpg','im1016.jpg'};
-%for i=1:numel(images)
-%    pos = bg.nodes(i).Position;
-%    im = imread(images{i});
-%    plot3_images_in_coordinates(im, [0 pos(1) pos(2)]);
-%    hold on;
-    %plot lines between connected nodes
-%    child =  find(Adj(i,:));
-%    for j=1:numel(child)
-%        posChild = bg.nodes(child(j)).Position;
-%        plot3([0 0],[pos(1) posChild(1)],[pos(2) posChild(2)],'-b');
-%    end
-%end
+figure(3000),
+subplot(2,2,1),bar(Ci,representativity),title('Representativity vs Community'),
+subplot(2,2,2),bar(Ci,IC),title('Intrinsec Cohesion vs Community'),
+subplot(2,2,3),bar(Ci,FA),title('Affiliation Force vs Community'),
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
